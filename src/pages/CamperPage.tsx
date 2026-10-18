@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ConfirmedBadge, Notice, UnconfirmedBadge } from '../components/Badges';
 import { INSTRUCTIONS, PLAN, UNPLACED_DEVICES, VEHICLE, type Layer, type PlanElement } from '../data/camper';
+
+const Camper3D = lazy(() => import('../components/Camper3D'));
 
 function ElementShape({ el, selected, onSelect, faded }: { el: PlanElement; selected: boolean; onSelect: () => void; faded?: boolean }) {
   const small = el.w < 30 || el.h < 30;
@@ -40,6 +42,7 @@ function ElementShape({ el, selected, onSelect, faded }: { el: PlanElement; sele
 }
 
 export default function CamperPage() {
+  const [view, setView] = useState<'3d' | '2d'>('3d');
   const [layer, setLayer] = useState<Layer>('dol');
   const [selectedId, setSelectedId] = useState<string>('dinette-front');
   const selected = PLAN.find((p) => p.id === selectedId);
@@ -51,13 +54,38 @@ export default function CamperPage() {
       <h1>
         Kamper: {VEHICLE.name} ({VEHICLE.year}, {VEHICLE.base})
       </h1>
-      <Notice kind="warn">
-        Rzut z góry przygotowany na podstawie <strong>opisu właściciela</strong>. Proporcje są poglądowe (wymiary
-        nieznane). Elementy z ukośnym kreskowaniem i znakiem <strong>(?)</strong> są niepotwierdzone. Film
-        referencyjny nie został jeszcze przeanalizowany.
-      </Notice>
+      <div className="seg-control" role="group" aria-label="Forma wizualizacji">
+        <button className={view === '3d' ? 'active' : ''} aria-pressed={view === '3d'} onClick={() => setView('3d')}>
+          Model 3D
+        </button>
+        <button className={view === '2d' ? 'active' : ''} aria-pressed={view === '2d'} onClick={() => setView('2d')}>
+          Rzut z góry 2D
+        </button>
+      </div>
 
-      <div className="camper-layout">
+      {view === '3d' ? (
+        <Notice kind="warn">
+          Model 3D: <strong>układ wnętrza wg opisu właściciela</strong>, wygląd zewnętrzny (kolory, okna, oklejenie)
+          wzorowany na zdjęciach egzemplarza z ogłoszenia — może różnić się od pojazdu właściciela. Wymiary i proporcje są
+          poglądowe. Elementy niepotwierdzone mają znacznik <strong>?</strong>. Film referencyjny nie został jeszcze
+          przeanalizowany.
+        </Notice>
+      ) : (
+        <Notice kind="warn">
+          Rzut z góry przygotowany na podstawie <strong>opisu właściciela</strong>. Proporcje są poglądowe (wymiary
+          nieznane). Elementy z ukośnym kreskowaniem i znakiem <strong>(?)</strong> są niepotwierdzone. Film
+          referencyjny nie został jeszcze przeanalizowany.
+        </Notice>
+      )}
+
+      <div className={`camper-layout${view === '3d' ? ' wide' : ''}`}>
+        {view === '3d' ? (
+          <div className="card">
+            <Suspense fallback={<p className="muted-text">Ładowanie modelu 3D…</p>}>
+              <Camper3D selectedId={selectedId} onSelect={setSelectedId} />
+            </Suspense>
+          </div>
+        ) : (
         <div className="card camper-plan">
           <div className="seg-control" role="group" aria-label="Poziom rzutu">
             <button className={layer === 'dol' ? 'active' : ''} onClick={() => setLayer('dol')} aria-pressed={layer === 'dol'}>
@@ -110,6 +138,7 @@ export default function CamperPage() {
             Kliknij element (lub wybierz go klawiszem Tab i Enter). Strony liczone patrząc w kierunku jazdy.
           </p>
         </div>
+        )}
 
         <aside className="card camper-info" aria-live="polite">
           {selected ? (

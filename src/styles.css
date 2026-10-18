@@ -1360,3 +1360,71 @@ tfoot td {
   flex-direction: column;
   gap: 16px;
 }
+
+/* ---------- Model 3D ---------- */
+.camper-layout.wide {
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+@media (max-width: 1000px) {
+  .camper-layout.wide {
+    grid-template-columns: 1fr;
+  }
+}
+.camper3d {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.camper3d-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+.camper3d-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.camper3d-canvas {
+  position: relative;
+  height: min(70vh, 620px);
+  min-height: 360px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  touch-action: none;
+}
+.camper3d-canvas canvas {
+  display: block;
+}
+.camper3d-tip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(20, 20, 20, 0.85);
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.camper3d-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.9rem;
+}
+.q-dot {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  background: #e69f00;
+  color: #1d1d1b;
+  border: 2px solid #1d1d1b;
+  font-weight: 800;
+  font-size: 11px;
+}
